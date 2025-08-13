@@ -1,10 +1,20 @@
+import { db } from '../db';
+import { devicesTable } from '../db/schema';
 import { type DeleteDeviceInput } from '../schema';
+import { eq } from 'drizzle-orm';
 
 export async function deleteDevice(input: DeleteDeviceInput): Promise<{ success: boolean }> {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is deleting a device from the database.
-    // Should delete from devicesTable where id matches input.id.
-    // Related relationships will be automatically deleted due to cascade constraints.
-    // Should return success: true if device was found and deleted, false otherwise.
-    return Promise.resolve({ success: false });
+  try {
+    // Delete the device record
+    const result = await db.delete(devicesTable)
+      .where(eq(devicesTable.id, input.id))
+      .returning()
+      .execute();
+
+    // Return true if a device was actually deleted, false if no device was found
+    return { success: result.length > 0 };
+  } catch (error) {
+    console.error('Device deletion failed:', error);
+    throw error;
+  }
 }

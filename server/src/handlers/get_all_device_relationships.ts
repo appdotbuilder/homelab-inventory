@@ -1,9 +1,16 @@
+import { db } from '../db';
+import { deviceRelationshipsTable } from '../db/schema';
 import { type DeviceRelationship } from '../schema';
 
-export async function getAllDeviceRelationships(): Promise<DeviceRelationship[]> {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is fetching all device relationships from the database.
-    // Should query deviceRelationshipsTable and return all relationships with their full information.
-    // Useful for visualizing the complete network topology and device dependencies.
-    return [];
-}
+export const getAllDeviceRelationships = async (): Promise<DeviceRelationship[]> => {
+  try {
+    const results = await db.select()
+      .from(deviceRelationshipsTable)
+      .execute();
+
+    return results;
+  } catch (error) {
+    console.error('Failed to get all device relationships:', error);
+    throw error;
+  }
+};

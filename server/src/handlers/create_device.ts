@@ -1,11 +1,12 @@
+import { db } from '../db';
+import { devicesTable } from '../db/schema';
 import { type CreateDeviceInput, type Device } from '../schema';
 
-export async function createDevice(input: CreateDeviceInput): Promise<Device> {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is creating a new device and persisting it in the database.
-    // Should validate input, insert into devicesTable, and return the created device with generated ID.
-    return Promise.resolve({
-        id: 0, // Placeholder ID
+export const createDevice = async (input: CreateDeviceInput): Promise<Device> => {
+  try {
+    // Insert device record
+    const result = await db.insert(devicesTable)
+      .values({
         name: input.name,
         type: input.type,
         ip_address: input.ip_address || null,
@@ -13,11 +14,19 @@ export async function createDevice(input: CreateDeviceInput): Promise<Device> {
         model: input.model || null,
         operating_system: input.operating_system || null,
         cpu: input.cpu || null,
-        ram: input.ram || null,
-        storage_capacity: input.storage_capacity || null,
-        status: input.status || 'offline',
-        notes: input.notes || null,
-        created_at: new Date(),
-        updated_at: new Date()
-    } as Device);
-}
+        ram: input.ram || null, // real columns don't need conversion
+        storage_capacity: input.storage_capacity || null, // real columns don't need conversion
+        status: input.status,
+        notes: input.notes || null
+      })
+      .returning()
+      .execute();
+
+    // Return the created device (no numeric conversion needed for real columns)
+    const device = result[0];
+    return device;
+  } catch (error) {
+    console.error('Device creation failed:', error);
+    throw error;
+  }
+};
